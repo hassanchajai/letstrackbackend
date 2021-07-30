@@ -16,6 +16,7 @@ class CreateOrderJournalsTable extends Migration
         Schema::create('order_journals', function (Blueprint $table) {
             $table->id();
             $table->integer("order_statu_id");
+            $table->string("message");
             $table->timestamps();
         });
     }

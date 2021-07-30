@@ -71,11 +71,21 @@ Route::group([
     ],function($router){
         Route::get("/","OrdersController@index");
         Route::get("/{id}","OrdersController@show");
+        Route::put("/{id}","OrdersController@update");
+        Route::put("/{id}/address","OrdersController@updateAddress");
+        Route::put("/{id}/status","OrdersController@updateStatus");
         // Route::post("/","OrdersController@store");
         // Route::put("/{id}","OrdersController@update");
         // Route::delete("/{id}","OrdersController@destroy");
         // Route::post("/{id}/refresh","OrdersController@refresh");
     });
     // end of orders
+    // begin of status
+    Route::group([
+        "prefix"=>"status"
+    ],function($router){
+        Route::get("/","OrderStatusController@index");
+    });
+    // end of status
    });
    
