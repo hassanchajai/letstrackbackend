@@ -87,5 +87,12 @@ Route::group([
         Route::get("/","OrderStatusController@index");
     });
     // end of status
+    // begin of status
+    Route::group([
+        "prefix"=>"spams"
+    ],function($router){
+        Route::post("/","SpamController@spam");
+    });
+    // end of status
    });
    

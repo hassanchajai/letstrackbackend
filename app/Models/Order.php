@@ -27,7 +27,7 @@ class Order extends Model
     }
     public function orderjournals()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(OrderJournal::class);
     }
     public function status(){
         return $this->belongsTo(OrderStatu::class,"order_statu_id");

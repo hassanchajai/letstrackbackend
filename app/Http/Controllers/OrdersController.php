@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderJournal;
 use App\Models\Spam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,12 +20,18 @@ class OrdersController extends Controller
     {
         $this->middleware("auth:company",["except"=>["store"]]);
     }
-    public function index()
+    public function index(Request $request)
     {
         $company_id=Auth::user()->company_id;
-        // created_at , location , spam count order id order status
-        $orders=Order::where("company_id",$company_id)->orderBy("created_at","desc")->get();
-        $arr=[];
+        $orders=[];
+
+       $orders =  Order::where("company_id",$company_id);
+       if(isset($request->status) && $request->status != "All")  $orders=$orders->where("order_statu_id",$request->status);
+       if(isset($request->phone) && !empty($request->phone))  $orders=$orders->join("customers","customers.id","=","orders.customer_id")->where("customers.phone","like",$request->phone."%");
+       if(isset($request->delivery_id) && !empty($request->delivery_id) && $request->delivery_id != "All")  $orders=$orders->where("delivery_id",$request->delivery_id);
+      
+       $orders=$orders->orderBy("orders.created_at","desc")->get();
+       $arr=[];
         foreach ($orders as $key => $item) {
             $arr[]=[
                 "order_id"=>$item->id,
@@ -32,7 +39,7 @@ class OrdersController extends Controller
                 "location"=>$item->shipping_address,
                 "phone"=>$item->customer->phone,
                 "spams"=>count($item->customer->spams),
-                "status"=>$item->status->name
+                "status"=>$item->status->name,
             ];
         }
         return response()->json([
@@ -69,18 +76,28 @@ class OrdersController extends Controller
     {
         $company_id=Auth::user()->company_id;
         $idUser=Auth::user()->id;
-        $spamchecked=count(Spam::where("user_id",$idUser)->get());
+        $spamchecked=Spam::where("user_id",$idUser)->get();
         $order=Order::where("id",$id)->where("company_id",$company_id)->first();
+        $orderjournal=[];
+        foreach ($order->orderjournals as $key => $value) {
+           $orderjournal[]=[
+               "id"=>$value->id,
+               "message"=>$value->message,
+               "statu"=>$value->orderstatu->name
+           ];
+        }
         $item=[
             "order_id"=>$order->id,
             "order_date"=>$order->order_date,
             "created_at"=>$order->created_at,
             "delivery"=>$order->delivery,
-            "phone"=>$order->customer->phone,
+            "customer"=>$order->customer,
             "order_detail"=>$order->orderdetail,
             "location"=>$order->shipping_address,
             "status"=>$order->status,
-            "spamChecked"=>$spamchecked
+            "spamChecked"=>count($spamchecked),
+            "spam"=>$spamchecked,
+            "order_journal"=>$orderjournal
         ];
         return response()->json(["order"=>$item]);
     }
@@ -107,26 +124,10 @@ class OrdersController extends Controller
         $order->delivery_id=$request->delivery_id;
         $order->save();
         return response()->json([
-            "message"=>"Order updated succesufuly"
+            "message"=>"Order updated succesufuly",
+            "date"=>$request->date
         ],200);
     }
-    // public function updateDelivery(Request $request,$id)
-    // {
-    //     $validate=Validator::make($request->all(),[
-    //         "delivery_id"=>"required"
-    //     ]);
-    //     if($validate->fails()){
-    //         return response()->json([
-    //             "errors"=>$validate->errors()
-    //         ],422);
-    //     }
-    //     $order=Order::find($id);
-    //     $order->delivery_id=$request->delivery_id;
-    //     $order->save();
-    //     return response()->json([
-    //         "message"=>"Order Delivery updated succesufuly"
-    //     ],200);
-    // }
     public function updateAddress(Request $request,$id)
     {
         $validate=Validator::make($request->all(),[
@@ -156,28 +157,34 @@ class OrdersController extends Controller
         }
         $order=Order::find($id);
         $order->order_statu_id=$request->status_id;
+        // $order->message=$request->message;
         $order->save();
+        OrderJournal::create([
+            "order_statu_id"=>$request->status_id,
+            "order_id"=>$id,
+            "message"=>$request->message
+        ]);
         return response()->json([
             "message"=>"Order Status updated succesufuly"
         ],200);
     }
 
-    public function spam(Request $request, $id){
-        $validate=Validator::make($request->all(),[
-            "status_id"=>"required|number"
-        ]);
-        if($validate->fails()){
-            return response()->json([
-                "errors"=>$validate->errors()
-            ],422);
-        }
-        $order=Order::find($id);
-        $order->status_id=$request->status_id;
-        $order->save();
-        return response()->json([
-            "message"=>"Order Status updated succesufuly"
-        ],200);
-    }
+    // public function spam(Request $request, $id){
+    //     $validate=Validator::make($request->all(),[
+    //         "status_id"=>"required|number"
+    //     ]);
+    //     if($validate->fails()){
+    //         return response()->json([
+    //             "errors"=>$validate->errors()
+    //         ],422);
+    //     }
+    //     $order=Order::find($id);
+    //     $order->status_id=$request->status_id;
+    //     $order->save();
+    //     return response()->json([
+    //         "message"=>"Order Status updated succesufuly"
+    //     ],200);
+    // }
 
     /**
      * Remove the specified resource from storage.

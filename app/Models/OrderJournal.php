@@ -8,7 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 class OrderJournal extends Model
 {
     use HasFactory;
-    // protected $table="";
+    protected $table="order_journals";
+    protected $fillable=[
+        "order_statu_id",
+        "order_id",
+        "message"
+    ];
     public function orderstatu(){
         return $this->belongsTo(OrderStatu::class);
     }
