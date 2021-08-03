@@ -17,4 +17,11 @@ class OrderJournalsController extends Controller
             "order_journal"=>$ordersJouranl
         ]);
     }
+    public function destroy(Request $request,$id){
+        $ordersJouranl=OrderJournal::find($id);
+        $ordersJouranl->delete();
+        return response()->json([
+            "message"=>"order journal Item Delted succesfuly"
+        ]);
+    }
 }

@@ -32,11 +32,4 @@ class Order extends Model
     public function status(){
         return $this->belongsTo(OrderStatu::class,"order_statu_id");
     }
-
-    // public function getCurrentCompany()
-    // {
-    //     $company_id = Auth::user()->company_id;
-
-    //     return $this->where('company_id', $company_id);
-    // }
 }

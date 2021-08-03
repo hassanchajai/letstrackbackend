@@ -15,7 +15,7 @@ class OrderJournal extends Model
         "message"
     ];
     public function orderstatu(){
-        return $this->belongsTo(OrderStatu::class);
+        return $this->belongsTo(OrderStatu::class,"order_statu_id");
     }
     public function order(){
         return $this->belongsTo(Order::class);

@@ -31,11 +31,13 @@ class OrdersController extends Controller
        if(isset($request->delivery_id) && !empty($request->delivery_id) && $request->delivery_id != "All")  $orders=$orders->where("delivery_id",$request->delivery_id);
       
        $orders=$orders->orderBy("orders.created_at","desc")->get();
+    //   dd($orders); 
        $arr=[];
         foreach ($orders as $key => $item) {
+
             $arr[]=[
                 "order_id"=>$item->id,
-                "pickup"=>$item->created_at,
+                "pickup"=>$item->order_date,
                 "location"=>$item->shipping_address,
                 "phone"=>$item->customer->phone,
                 "spams"=>count($item->customer->spams),
@@ -83,7 +85,8 @@ class OrdersController extends Controller
            $orderjournal[]=[
                "id"=>$value->id,
                "message"=>$value->message,
-               "statu"=>$value->orderstatu->name
+               "statu"=>$value->orderstatu->name,
+               "created_at"=>$value->created_at
            ];
         }
         $item=[
