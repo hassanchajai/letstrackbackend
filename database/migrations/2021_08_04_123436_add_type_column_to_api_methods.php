@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateApiMethodHeadersTable extends Migration
+class AddTypeColumnToApiMethods extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateApiMethodHeadersTable extends Migration
      */
     public function up()
     {
-        Schema::create('api_method_headers', function (Blueprint $table) {
-            $table->id();
-            $table->string("name");
-            $table->string("defaultValue");
-            $table->string("api_method_id");
-            $table->timestamps();
+        Schema::table('api_methods', function (Blueprint $table) {
+            $table->string("type");
+            
         });
     }
 
@@ -29,6 +26,8 @@ class CreateApiMethodHeadersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('api_method_headers');
+        Schema::table('api_methods', function (Blueprint $table) {
+            //
+        });
     }
 }

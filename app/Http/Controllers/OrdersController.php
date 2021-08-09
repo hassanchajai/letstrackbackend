@@ -28,9 +28,10 @@ class OrdersController extends Controller
        $orders =  Order::where("company_id",$company_id);
        if(isset($request->status) && $request->status != "All")  $orders=$orders->where("order_statu_id",$request->status);
        if(isset($request->phone) && !empty($request->phone))  $orders=$orders->join("customers","customers.id","=","orders.customer_id")->where("customers.phone","like",$request->phone."%");
-       if(isset($request->delivery_id) && !empty($request->delivery_id) && $request->delivery_id != "All")  $orders=$orders->where("delivery_id",$request->delivery_id);
-      
-       $orders=$orders->orderBy("orders.created_at","desc")->get();
+       if(isset($request->delivery_id) && !empty($request->delivery_id) && $request->delivery_id != "All" ||  $request->delivery_id ==="0" )  $orders=$orders->where("delivery_id",$request->delivery_id);
+    //    else if($request->delivery_id ==="0") $orders=$orders->where("delivery_id",0);
+       //    else if(isset($request->delivery_id) && !empty($request->delivery_id) && $request->delivery_id != "All" && $request->delivery_id !== 0) $orders=$orders->where("delivery_id",0);
+       $orders=$orders->orderBy("orders.order_date",$request->date)->get();
     //   dd($orders); 
        $arr=[];
         foreach ($orders as $key => $item) {
@@ -46,7 +47,7 @@ class OrdersController extends Controller
         }
         return response()->json([
             "orders"=>$arr,
-            "count"=>count($orders)
+            "count"=>count($orders),
         ],200);
     }
 
@@ -78,7 +79,7 @@ class OrdersController extends Controller
     {
         $company_id=Auth::user()->company_id;
         $idUser=Auth::user()->id;
-        $spamchecked=Spam::where("user_id",$idUser)->get();
+        $spamchecked=Spam::where("user_id",$idUser)->where("order_id",$id)->get();
         $order=Order::where("id",$id)->where("company_id",$company_id)->first();
         $orderjournal=[];
         foreach ($order->orderjournals as $key => $value) {

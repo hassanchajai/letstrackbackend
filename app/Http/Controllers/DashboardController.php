@@ -29,39 +29,40 @@ class DashboardController extends Controller
         $ordersCancelled = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Cancelled")->where("company_id", $company_id)->get());
         $ordersEnDelivery = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
-            ->where("order_status.name", "=", "EnDelivery")->where("company_id", $company_id)->get());
+            ->where("order_status.name", "=", "En Delivery")->where("company_id", $company_id)->get());
         // get the orders of last month
         $ordersProcessingLastMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Processing")
-            ->whereBetween("orders.created_at", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
+            ->whereBetween("orders.order_date", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
 
         $ordersCompletedLastMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Completed")
-            ->whereBetween("orders.created_at", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
+            ->whereBetween("orders.order_date", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
 
         $ordersCancelledLastMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Cancelled")
-            ->whereBetween("orders.created_at", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
+            ->whereBetween("order_date", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
         $ordersEnDeliveryLastMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
-            ->where("order_status.name", "=", "EnDelivery")
-            ->whereBetween("orders.created_at", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
+            ->where("order_status.name", "=", "En Delivery")
+            ->whereBetween("orders.order_date", [$beginlastmonth, $endlastmonth])->where("company_id", $company_id)->get());
         //  get the orders of current month
         $ordersProcessingCurrentMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Processing")
-            ->where("orders.created_at", ">", $endlastmonth)
+            ->where("orders.order_date", ">", $endlastmonth)
             ->where("company_id", $company_id)->get());
         $ordersCompletedCurrentMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Completed")
-            ->where("orders.created_at", ">=", $endlastmonth)
+            ->where("orders.order_date", ">=", $endlastmonth)
             ->where("company_id", $company_id)->get());
         $ordersCancelledCurrentMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Cancelled")
-            ->where("orders.created_at", ">=", $endlastmonth)
+            ->where("orders.order_date", ">=", $endlastmonth)
             ->where("company_id", $company_id)->get());
         $ordersEnDeliveryCurrentMonth = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
-            ->where("order_status.name", "=", "EnDelivery")
-            ->where("orders.created_at", ">=", $endlastmonth)
+            ->where("order_status.name", "=", "En Delivery")
+            ->where("order_date", ">=", $endlastmonth)
             ->where("company_id", $company_id)->get());
+            // model::join()
         // end 
         // calculate the percent
         $percentProcessing = 0;
@@ -91,13 +92,13 @@ class DashboardController extends Controller
     public function lastorders()
     {
         $company_id = Auth::user()->company_id;
-        $orders = Order::where("company_id", $company_id)->orderBy("id", "desc")->take(6)->get();
+        $orders = Order::where("company_id", $company_id)->orderBy("order_date", "desc")->take(6)->get();
         $ordersArr = [];
         foreach ($orders as $order) {
             $ordersArr[] = [
                 "id" => $order->id,
                 "shipping_address" => $order->shipping_address,
-                "created_at" => $order->created_at->toDateTimeString()
+                "created_at" => $order->order_date
             ];
         }
         return response()->json([
@@ -106,10 +107,10 @@ class DashboardController extends Controller
     }
     public function chartdata(){
         $company_id = Auth::user()->company_id;
-        $result = Order::selectRaw(' monthname(created_at) as month, count(*) count')
+        $result = Order::selectRaw(' monthname(order_date) as month, count(*) count')
             ->where("company_id", $company_id)
                 ->groupBy('month')
-                ->orderBy("created_at","desc")
+                ->orderBy("order_date","desc")
                 ->take(6)
                 ->get();
         return response()->json(["orders"=>$result]);

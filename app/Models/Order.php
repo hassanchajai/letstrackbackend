@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Auth;
 class Order extends Model
 {
     use HasFactory;
+    // ,`shipping_address`,`order_date`,`company_id`,`customer_id`,`order_statu_id`,`delivery_id`
+    protected $fillable=[
+        "order_uid","client_api","shipping_address","order_date","company_id","customer_id","order_statu_id","delivery_id"
+    ];
     public function company()
     {
         return $this->belongsTo(Company::class);

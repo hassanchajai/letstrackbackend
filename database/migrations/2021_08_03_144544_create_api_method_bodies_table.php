@@ -17,7 +17,7 @@ class CreateApiMethodBodiesTable extends Migration
             $table->id();
             $table->string("name");
             $table->string("defaultValue");
-            $table->id("api_method_id");
+            $table->integer("api_method_id");
             $table->timestamps();
         });
     }

@@ -29,9 +29,6 @@ use Illuminate\Support\Facades\Route;
 //        Route::post("refresh","AuthController@refresh");
       
 //    });
-   
-//    company
-
 Route::group([
     "prefix"=>"company",
     "namespace"=>"\App\Http\Controllers",
@@ -93,6 +90,24 @@ Route::group([
     ],function($router){
         Route::post("/","SpamController@spam");
     });
-    // end of status
+    Route::group([
+        "prefix"=>"company_space"
+    ],function($router){
+        Route::get("/","MethodsController@index");
+    });
+    // methods public 
+    Route::group([
+        "prefix"=>"methods"
+    ],function($router){
+        Route::post("add","ApiMethodsController@add");
+    });
+    // end of methods public
+    // methods delivery 
+    Route::group([
+        "prefix"=>"delivery"
+    ],function($router){
+        Route::get("orders","DeliveryController@orders");
+    });
+    // end of methods public
    });
    

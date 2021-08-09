@@ -52,19 +52,19 @@ class UsersController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "uid" => "required|string|min:31|unique:deliveries",
-            "email" => "required|email",
+            "email" => "required|email|unique:deliveries",
             "phone" => "required|string",
             "name" => "required|string|min:6",
         ]);
         if ($validator->fails()) {
             return response()->json([
                 "errors" => $validator->errors()
-            ], 422);
+            ]);
         }
         // store the image
         // dd($request->files);
         $image = "";
-        if ($request->hasFile("image")) {
+        // if ($request->hasFile("image")) {
 
             // $file=$request->file("image");
             // $filename=time().".".$file->getClientOriginalExtension();
@@ -72,7 +72,7 @@ class UsersController extends Controller
             // dd( $file->move($filepath,$filename));
             // Storage::move()
             // $image=$filepath.$filename;
-        }
+        // }
         // create user
         $delivery =  Delivery::create([
             "uid" => $request->uid,
@@ -103,12 +103,13 @@ class UsersController extends Controller
         $ordersCancelled = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
             ->where("order_status.name", "=", "Cancelled")->where("delivery_id", $id)->get());
         $ordersEnDelivery = count(Order::join("order_status", "order_status.id", "=", "orders.order_statu_id")
-            ->where("order_status.name", "=", "EnDelivery")->where("delivery_id", $id)->get());
+            ->where("order_status.name", "=", "En Delivery")->where("delivery_id", $id)->get());
 
         $delivery = Delivery::find($id);
-
+        $counter=$ordersProcessing+$ordersEnDelivery+$ordersCancelled+$ordersCompleted;
         return response()->json([
             "user" => $delivery,
+            "ordersCounter"=>$counter,
             "orders" => [
                 "ordersProcessing" => $ordersProcessing,
                 "ordersCompleted" => $ordersCompleted,
@@ -134,7 +135,7 @@ class UsersController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 "errors" => $validator->errors()
-            ], 422);
+            ]);
         }
         $delivery = Delivery::find($id);
         $delivery->update([
@@ -153,6 +154,7 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
+        Order::where("delivery_id",$id)->update(["delivery_id"=>0]);
         $delivery=Delivery::find($id);
         $delivery->delete();
         return response()->json([
