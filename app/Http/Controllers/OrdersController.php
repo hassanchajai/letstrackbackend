@@ -29,9 +29,7 @@ class OrdersController extends Controller
        if(isset($request->status) && $request->status != "All")  $orders=$orders->where("order_statu_id",$request->status);
        if(isset($request->phone) && !empty($request->phone))  $orders=$orders->join("customers","customers.id","=","orders.customer_id")->where("customers.phone","like",$request->phone."%");
        if(isset($request->delivery_id) && !empty($request->delivery_id) && $request->delivery_id != "All" ||  $request->delivery_id ==="0" )  $orders=$orders->where("delivery_id",$request->delivery_id);
-    //    else if($request->delivery_id ==="0") $orders=$orders->where("delivery_id",0);
-       //    else if(isset($request->delivery_id) && !empty($request->delivery_id) && $request->delivery_id != "All" && $request->delivery_id !== 0) $orders=$orders->where("delivery_id",0);
-       $orders=$orders->orderBy("orders.order_date",$request->date)->get();
+    $orders=$orders->orderBy("orders.order_date",$request->date)->get();
     //   dd($orders); 
        $arr=[];
         foreach ($orders as $key => $item) {
@@ -81,8 +79,9 @@ class OrdersController extends Controller
         $idUser=Auth::user()->id;
         $spamchecked=Spam::where("user_id",$idUser)->where("order_id",$id)->get();
         $order=Order::where("id",$id)->where("company_id",$company_id)->first();
+        $orderJournals=OrderJournal::where("order_id",$order->id)->orderBy("id","desc")->get();
         $orderjournal=[];
-        foreach ($order->orderjournals as $key => $value) {
+        foreach ($orderJournals as $key => $value) {
            $orderjournal[]=[
                "id"=>$value->id,
                "message"=>$value->message,
