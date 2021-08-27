@@ -56,18 +56,7 @@ class AuthCompanyController extends Controller
             ]
         );
     }
-    private function uniqidReal($lenght = 7)
-    {
 
-        if (function_exists("random_bytes")) {
-            $bytes = random_bytes(ceil($lenght / 2));
-        } elseif (function_exists("openssl_random_pseudo_bytes")) {
-            $bytes = openssl_random_pseudo_bytes(ceil($lenght / 2));
-        } else {
-            throw new Exception("no cryptographically secure random function available");
-        }
-        return substr(bin2hex($bytes), 0, $lenght);
-    }
     public function register(Request $req)
     {
         $validator = Validator::make($req->all(), [
@@ -104,9 +93,9 @@ class AuthCompanyController extends Controller
         $companyDetail = CompanyDetail::create(
             [
                 "name" => "",
-                "site" => "",
-                "address" => "",
-                "country" => "",
+                "site" => $req->site,
+                "address" => $req->city,
+                "country" => $req->country,
                 "company_id" => $company->id
             ]
         );
@@ -115,7 +104,7 @@ class AuthCompanyController extends Controller
         $nameApp = $company->name . substr(time(), 0, 5) . " Application n°" . $count . "  " . "@" . date("Y");
         $app = Application::create([
             "name" => $nameApp,
-            "host" => "host",
+            "host" => $req->site,
             "key" => $key,
             "company_id" => $company->id
         ]);
@@ -218,7 +207,7 @@ class AuthCompanyController extends Controller
     public function profile()
     {
         $user = $this->guard()->user();
-        $company = CompanyDetail::find($user->company_id);
+        $company = CompanyDetail::where("company_id",$user->company_id)->first();
         return response()->json([
             "user" => $user,
             "company" => $company

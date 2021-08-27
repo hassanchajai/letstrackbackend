@@ -81,6 +81,7 @@ class DashboardController extends Controller
                 "ordersCancelled" => $ordersCancelled,
                 "ordersEnDelivery" => $ordersEnDelivery
             ],
+            "sass"=>$ordersEnDeliveryCurrentMonth,
             "ordersPercent" => [
                 "ordersProcessing" => $percentProcessing,
                 "ordersCompleted" => $percentCompleted,

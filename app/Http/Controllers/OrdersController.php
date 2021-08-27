@@ -100,7 +100,9 @@ class OrdersController extends Controller
             "status"=>$order->status,
             "spamChecked"=>count($spamchecked),
             "spam"=>$spamchecked,
-            "order_journal"=>$orderjournal
+            "order_journal"=>$orderjournal,
+            "ip"=>$order->client_api,
+            "number"=>$order->order_uid
         ];
         return response()->json(["order"=>$item]);
     }

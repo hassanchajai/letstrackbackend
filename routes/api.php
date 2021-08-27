@@ -74,10 +74,6 @@ Route::group([
         Route::put("/{id}", "OrdersController@update");
         Route::put("/{id}/address", "OrdersController@updateAddress");
         Route::put("/{id}/status", "OrdersController@updateStatus");
-        // Route::post("/","OrdersController@store");
-        // Route::put("/{id}","OrdersController@update");
-        // Route::delete("/{id}","OrdersController@destroy");
-        // Route::post("/{id}/refresh","OrdersController@refresh");
     });
     // end of orders
     // begin of status
